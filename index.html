@@ -2,25 +2,336 @@
 <html lang="nl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Sinterklaasspel</title>
-<meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Het Grote Boek</title>
+<meta name="description" content="Schrijf een opdracht in het Grote Boek van de Sint. Binnenkort: het Sinterklaasspel, waarin de Sint zelf het dobbelspel leidt.">
+<meta property="og:title" content="Het Grote Boek van de Sint">
+<meta property="og:description" content="Welke opdracht moet er dit jaar in het Grote Boek? Schrijf hem erin.">
+<meta property="og:image" content="https://sinterklaasspel.app/img/sint.jpg">
+<meta name="theme-color" content="#1a0606">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-  :root { color-scheme: dark; }
-  html, body { height: 100%; margin: 0; }
-  body {
-    background: radial-gradient(ellipse at 50% 35%, #4a1212 0%, #1c0606 60%, #0d0303 100%);
-    color: #f3e6c8; font-family: Georgia, "Times New Roman", serif;
-    display: grid; place-items: center; text-align: center; padding: 0 16px;
+  :root {
+    --nacht: #1a0606;
+    --leer: #6e0f12;
+    --leer-donker: #3a0608;
+    --goud: #d9b45a;
+    --goud-licht: #f1d68a;
+    --perkament: #efe2c4;
+    --perkament-rand: #c9ad78;
+    --inkt: #2b1a10;
+    --inkt-zacht: #5a4330;
+    --zegel: #8f1218;
   }
-  h1 { font-weight: normal; letter-spacing: .08em; font-size: clamp(2rem, 7vw, 4rem); margin: 0 0 .4em; color: #e8c766; }
-  p { font-size: clamp(1rem, 3.5vw, 1.25rem); opacity: .8; margin: 0; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; min-height: 100vh; color: var(--inkt);
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 18%, rgba(255,170,80,.16), transparent 70%),
+      radial-gradient(ellipse at 50% 120%, #2a0909, var(--nacht) 70%);
+    background-color: var(--nacht);
+    font-family: "EB Garamond", Georgia, serif; font-size: 18px; line-height: 1.55;
+    padding: 28px 16px 48px; overflow-x: hidden;
+  }
+
+  /* ---------- het boek ---------- */
+  .boek { position: relative; max-width: 620px; margin: 0 auto; perspective: 2200px; }
+  .blad {
+    position: relative; padding: 34px 30px 40px;
+    background-color: var(--perkament);
+    background-image:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .12 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(120,80,30,.28) 100%),
+      linear-gradient(90deg, rgba(90,60,20,.22), transparent 7%);
+    box-shadow: 0 30px 70px rgba(0,0,0,.6), 0 0 0 1px var(--perkament-rand), inset 0 0 50px rgba(110,70,20,.22);
+    border-radius: 2px 6px 6px 2px;
+  }
+  @media (min-width: 560px) { .blad { padding: 48px 56px 52px; } }
+
+  .portret {
+    display: block; width: min(210px, 58%); height: auto; aspect-ratio: 4 / 5; margin: 0 auto 14px;
+    object-fit: cover; object-position: 50% 42%;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px var(--perkament), 0 0 0 5px var(--goud), 0 0 0 7px var(--perkament), 0 0 0 8px rgba(140,100,40,.6), 0 10px 24px rgba(70,40,10,.35);
+    filter: sepia(.12) contrast(1.03);
+  }
+  .kop { text-align: center; }
+  .kop .boven { font-family: "IM Fell English SC", serif; letter-spacing: .22em; font-size: .82rem; color: var(--inkt-zacht); }
+  h1 {
+    font-family: "IM Fell English", serif; font-weight: 400; color: var(--leer);
+    font-size: clamp(1.9rem, 7vw, 2.7rem); line-height: 1.1; margin: .25em 0 .35em;
+  }
+  .sier { display: block; width: 160px; height: 14px; margin: 0 auto 18px; color: var(--goud); }
+  .intro { margin: 0 0 1.2em; }
+  .intro::first-letter {
+    font-family: "IM Fell English", serif; float: left; font-size: 3.6em; line-height: .82;
+    padding: 6px 8px 0 0; color: var(--leer);
+  }
+  .regels { font-style: italic; color: var(--inkt-zacht); font-size: .95rem; margin: 0 0 1.6em; }
+
+  /* ---------- formulier als inkt op papier ---------- */
+  form { display: grid; gap: 22px; }
+  label { display: block; font-family: "IM Fell English SC", serif; letter-spacing: .1em; font-size: .9rem; color: var(--inkt-zacht); margin-bottom: 4px; }
+  .optioneel { font-family: "EB Garamond", serif; letter-spacing: 0; font-style: italic; text-transform: none; }
+  textarea, input[type=text], input[type=email] {
+    width: 100%; font: inherit; color: var(--inkt); background: transparent;
+    border: 0; border-bottom: 1px solid rgba(60,35,15,.45); border-radius: 0; padding: 6px 2px; outline: none;
+  }
+  textarea {
+    min-height: 132px; resize: vertical; line-height: 32px; padding-top: 2px;
+    background-image: repeating-linear-gradient(transparent 0 31px, rgba(60,35,15,.28) 31px 32px);
+    background-attachment: local; border-bottom: 0;
+    font-family: "IM Fell English", serif; font-size: 1.15rem;
+  }
+  textarea:focus, input:focus { border-color: var(--leer); }
+  textarea:focus { background-image: repeating-linear-gradient(transparent 0 31px, rgba(110,15,18,.45) 31px 32px); }
+  .teller { text-align: right; font-size: .8rem; color: var(--inkt-zacht); margin-top: 2px; }
+  .keuzes { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+  .keuzes label { font-family: "EB Garamond", serif; letter-spacing: 0; font-size: 1.05rem; color: var(--inkt); display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; }
+  input[type=radio], input[type=checkbox] { accent-color: var(--leer); width: 18px; height: 18px; margin: 0; }
+  .vink { display: flex; gap: 10px; align-items: flex-start; font-family: "EB Garamond", serif; letter-spacing: 0; font-size: 1rem; color: var(--inkt); margin: 0; }
+  .vink[hidden] { display: none; }
+  .vink input { margin-top: 4px; flex: none; }
+  .twee { display: grid; gap: 22px; }
+  @media (min-width: 560px) { .twee { grid-template-columns: 1fr 1fr; } }
+  .honing { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .verstuur {
+    justify-self: center; display: inline-flex; align-items: center; gap: 14px;
+    font-family: "IM Fell English SC", serif; letter-spacing: .14em; font-size: 1.05rem;
+    color: var(--perkament); background: var(--leer); border: 1px solid var(--leer-donker);
+    padding: 12px 26px 12px 14px; cursor: pointer; box-shadow: 0 3px 0 var(--leer-donker), 0 8px 18px rgba(60,10,10,.3);
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .verstuur:hover { transform: translateY(-1px); }
+  .verstuur:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--leer-donker), 0 4px 10px rgba(60,10,10,.3); }
+  .verstuur:disabled { opacity: .6; cursor: default; }
+  .verstuur svg { width: 34px; height: 34px; flex: none; }
+  .fout { color: var(--zegel); font-style: italic; text-align: center; min-height: 1.2em; margin: -6px 0 0; }
+
+  .bedankt { display: none; text-align: center; padding: 10px 0 4px; }
+  .bedankt.zichtbaar { display: block; animation: inkt 1.2s ease both; }
+  .bedankt h2 { font-family: "IM Fell English", serif; font-weight: 400; color: var(--leer); font-size: 1.8rem; margin: .2em 0 .3em; }
+  .bedankt .nog { margin-top: 18px; background: none; border: 0; color: var(--leer); font: inherit; text-decoration: underline; cursor: pointer; }
+  @keyframes inkt { from { opacity: 0; filter: blur(4px); } to { opacity: 1; filter: none; } }
+
+  .voet { max-width: 620px; margin: 22px auto 0; text-align: center; color: rgba(239,226,196,.6); font-size: .85rem; }
+  .voet a { color: rgba(239,226,196,.8); }
+  .voet .merk { font-family: "IM Fell English SC", serif; letter-spacing: .2em; color: var(--goud); font-size: .95rem; display: block; margin-bottom: 6px; }
+
+  .muziek {
+    position: fixed; right: 14px; top: max(14px, env(safe-area-inset-top)); z-index: 5;
+    font-family: "IM Fell English SC", serif; letter-spacing: .12em; font-size: .85rem;
+    color: var(--goud); background: rgba(26,6,6,.7); border: 1px solid rgba(217,180,90,.5); padding: 7px 12px; cursor: pointer;
+  }
+  .muziek[hidden] { display: none; }
+
+  /* ---------- omslag die openslaat ---------- */
+  .omslag {
+    position: absolute; inset: 0; z-index: 3; transform-origin: left center; transform-style: preserve-3d;
+    transition: transform 1.6s cubic-bezier(.55,.05,.25,1), opacity .4s ease 1.3s;
+    cursor: pointer;
+  }
+  .omslag .voor, .omslag .achter { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 3px 8px 8px 3px; }
+  .omslag .voor {
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.4' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .35 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+      radial-gradient(ellipse at 40% 25%, #8d1a1d, var(--leer) 45%, var(--leer-donker) 100%);
+    box-shadow: inset 0 0 0 10px rgba(0,0,0,.12), inset 0 0 0 12px rgba(217,180,90,.55), inset 0 0 0 22px transparent, inset 0 0 80px rgba(0,0,0,.5), 0 30px 70px rgba(0,0,0,.6);
+    display: flex; flex-direction: column; align-items: center; padding-top: min(22vh, 180px); text-align: center;
+  }
+  .omslag .voor::before { /* rug */
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 26px;
+    background: linear-gradient(90deg, rgba(0,0,0,.45), rgba(255,255,255,.06) 60%, rgba(0,0,0,.2));
+    border-radius: 3px 0 0 3px;
+  }
+  .omslag .titel {
+    font-family: "IM Fell English SC", serif; color: var(--goud-licht); font-size: clamp(2rem, 9vw, 3.2rem); line-height: 1.05; letter-spacing: .06em;
+    text-shadow: 0 1px 0 #5a3d10, 0 2px 3px rgba(0,0,0,.6), 0 0 18px rgba(241,214,138,.25);
+    background: linear-gradient(180deg, #fbe7a8, #c99a3a 55%, #f3d58a); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .omslag .ornament { width: 140px; height: 140px; margin-bottom: 18px; color: var(--goud); opacity: .9; }
+  .omslag .ondertitel { margin-top: 14px; font-style: italic; color: rgba(241,214,138,.8); font-size: 1rem; }
+  .omslag .achter { transform: rotateY(180deg); background: linear-gradient(90deg, #d9c69c, var(--perkament)); box-shadow: inset -20px 0 40px rgba(90,60,20,.3); }
+  .boek.open .omslag { transform: rotateY(-178deg); opacity: 0; pointer-events: none; }
+  .blad > * { transition: opacity .9s ease .7s; }
+  .boek:not(.open) .blad > * { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .omslag { display: none; } .boek:not(.open) .blad > * { opacity: 1; } }
 </style>
 </head>
 <body>
-  <main>
-    <h1>Sinterklaasspel</h1>
-    <p>De Sint bereidt het spel voor.</p>
-  </main>
+
+<button class="muziek" id="muziek" hidden aria-pressed="false">&#9834; Muziek</button>
+
+<main class="boek" id="boek">
+  <div class="omslag" id="omslag" aria-hidden="true">
+    <div class="voor">
+      <svg class="ornament" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.4">
+        <path d="M50 8 L50 92 M8 50 L92 50" />
+        <path d="M50 22 C60 30 60 40 50 50 C40 40 40 30 50 22Z M50 78 C60 70 60 60 50 50 C40 60 40 70 50 78Z M22 50 C30 40 40 40 50 50 C40 60 30 60 22 50Z M78 50 C70 40 60 40 50 50 C60 60 70 60 78 50Z"/>
+        <circle cx="50" cy="50" r="40" /><circle cx="50" cy="50" r="44" stroke-width=".6"/>
+      </svg>
+      <div class="titel">Het Grote<br>Boek</div>
+      <div class="ondertitel">van de Sint</div>
+    </div>
+    <div class="achter"></div>
+  </div>
+
+  <article class="blad">
+    <img class="portret" src="img/sint.jpg" alt="De Sint" width="1000" height="1500">
+    <header class="kop">
+      <div class="boven">Sinterklaasspel</div>
+      <h1>Schrijf een opdracht in mijn Grote Boek</h1>
+      <svg class="sier" viewBox="0 0 160 14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M2 7 H62 M98 7 H158"/><path d="M80 1 L86 7 L80 13 L74 7 Z"/><circle cx="68" cy="7" r="2"/><circle cx="92" cy="7" r="2"/></svg>
+    </header>
+
+    <div id="formulierdeel">
+      <p class="intro">Dit jaar leid ik zelf het dobbelspel. Gooi je het goede getal, dan trek je een lootje en lees ik voor wat er in mijn Grote Boek staat. Welke opdracht mag er dit jaar niet ontbreken? Schrijf hem op, en wie weet lees ik hem op pakjesavond voor aan jouw tafel.</p>
+      <p class="regels">Houd het leuk voor iedereen aan tafel, groot en klein. Elke opdracht wordt eerst gelezen voordat hij in het spel komt.</p>
+
+      <form id="formulier" novalidate>
+        <div>
+          <label for="opdracht">Jouw opdracht</label>
+          <textarea id="opdracht" name="opdracht" maxlength="280" required placeholder="Zing een liedje als een operazanger, met een cadeau op je hoofd."></textarea>
+          <div class="teller"><span id="teller">0</span> / 280</div>
+        </div>
+
+        <div>
+          <label id="voorwie-label">Voor wie is deze opdracht?</label>
+          <div class="keuzes" role="radiogroup" aria-labelledby="voorwie-label">
+            <label><input type="radio" name="voorwie" value="iedereen" checked> Iedereen</label>
+            <label><input type="radio" name="voorwie" value="kinderen"> Kinderen</label>
+            <label><input type="radio" name="voorwie" value="volwassenen"> Volwassenen</label>
+          </div>
+        </div>
+
+        <div class="twee">
+          <div>
+            <label for="naam">Je voornaam <span class="optioneel">(mag leeg)</span></label>
+            <input type="text" id="naam" name="naam" maxlength="40" autocomplete="given-name">
+          </div>
+          <div>
+            <label for="email">Je e-mail <span class="optioneel">(mag leeg)</span></label>
+            <input type="email" id="email" name="email" maxlength="120" autocomplete="email" inputmode="email">
+          </div>
+        </div>
+
+        <label class="vink" id="vink-rij" hidden><input type="checkbox" id="bericht" name="bericht"> Laat me weten als mijn opdracht in het spel komt. Mijn e-mail wordt daarna weer uit het boek gehaald.</label>
+
+        <div class="honing" aria-hidden="true"><label for="website">Laat leeg</label><input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></div>
+
+        <button class="verstuur" type="submit" id="verstuur">
+          <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="17" fill="#a8161c" stroke="#5a080b" stroke-width="2"/><circle cx="20" cy="20" r="11" fill="none" stroke="#e9b2a0" stroke-opacity=".55" stroke-width="1.2"/><path d="M14 23 L20 13 L26 23 Z" fill="none" stroke="#f3d1c0" stroke-opacity=".8" stroke-width="1.4"/><path d="M20 23 V27" stroke="#f3d1c0" stroke-opacity=".8" stroke-width="1.4"/></svg>
+          Verzegel en verstuur
+        </button>
+        <p class="fout" id="fout" role="alert"></p>
+      </form>
+    </div>
+
+    <div class="bedankt" id="bedankt" aria-live="polite">
+      <h2>Het staat in mijn boek</h2>
+      <p>Dank je wel<span id="bedankt-naam"></span>. Ik lees je opdracht met aandacht, en misschien hoor je hem op pakjesavond terug.</p>
+      <button class="nog" id="nog" type="button">Nog een opdracht schrijven</button>
+    </div>
+  </article>
+</main>
+
+<footer class="voet">
+  <span class="merk">sinterklaasspel.app</span>
+  Binnenkort: het dobbelspel waarin de Sint zelf de avond leidt.<br>
+  Je opdracht, voornaam en e-mail worden alleen gebruikt voor dit spel en nooit gedeeld.
+  Vragen of iets laten verwijderen: <a href="mailto:avontura.apps@gmail.com">avontura.apps@gmail.com</a>
+</footer>
+
+<audio id="muziekbron" loop preload="none"></audio>
+
+<script>
+  // ---- instellingen ----
+  const INZEND_URL = '';           // Google Apps Script web-app URL (volgt)
+  const MUZIEK_URL = '';           // bijv. 'audio/grote-boek.mp3' zodra Daniels Suno-nummer er is
+
+  // ---- boek openslaan ----
+  const boek = document.getElementById('boek');
+  const omslag = document.getElementById('omslag');
+  const openBoek = () => {
+    if (boek.classList.contains('open')) return;
+    boek.classList.add('open');
+    setTimeout(() => { omslag.style.display = 'none'; }, 1900); // na de animatie: omslag echt weg (geen 3D-laag meer over de pagina)
+  };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) openBoek();
+  else {
+    addEventListener('load', () => setTimeout(openBoek, 900));
+    setTimeout(openBoek, 3500); // vangnet als 'load' lang duurt
+  }
+  omslag.addEventListener('click', openBoek);
+
+  // ---- formulier ----
+  const f = document.getElementById('formulier');
+  const opdracht = document.getElementById('opdracht');
+  const email = document.getElementById('email');
+  const vinkRij = document.getElementById('vink-rij');
+  const fout = document.getElementById('fout');
+  const knop = document.getElementById('verstuur');
+  const geopend = Date.now();
+
+  opdracht.addEventListener('input', () => document.getElementById('teller').textContent = opdracht.value.length);
+  email.addEventListener('input', () => { vinkRij.hidden = !email.value.trim(); });
+
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    fout.textContent = '';
+    const tekst = opdracht.value.trim();
+    if (tekst.length < 8) { fout.textContent = 'Schrijf je opdracht iets uitgebreider op.'; opdracht.focus(); return; }
+    const mail = email.value.trim();
+    if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { fout.textContent = 'Dat e-mailadres klopt nog niet helemaal.'; email.focus(); return; }
+    const data = {
+      opdracht: tekst,
+      voorwie: f.voorwie.value,
+      naam: f.naam.value.trim(),
+      email: mail,
+      bericht: mail ? document.getElementById('bericht').checked : false,
+      website: f.website.value,                 // honingpot: mensen laten dit leeg
+      seconden: Math.round((Date.now() - geopend) / 1000),
+    };
+    knop.disabled = true;
+    try {
+      if (INZEND_URL) {
+        const r = await fetch(INZEND_URL, { method: 'POST', body: JSON.stringify(data) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || j.ok === false) throw new Error(j.fout || r.status);
+      } else {
+        console.info('[proef] inzending', data);
+        await new Promise(r => setTimeout(r, 500));
+      }
+      document.getElementById('bedankt-naam').textContent = data.naam ? ', ' + data.naam : '';
+      document.getElementById('formulierdeel').hidden = true;
+      document.getElementById('bedankt').classList.add('zichtbaar');
+      document.querySelector('.blad').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      fout.textContent = 'Er ging iets mis bij het versturen. Probeer het nog eens.';
+    } finally {
+      knop.disabled = false;
+    }
+  });
+  document.getElementById('nog').addEventListener('click', () => {
+    f.reset(); vinkRij.hidden = true; document.getElementById('teller').textContent = '0';
+    document.getElementById('bedankt').classList.remove('zichtbaar');
+    document.getElementById('formulierdeel').hidden = false;
+    opdracht.focus();
+  });
+
+  // ---- muziek (Daniels Suno-nummer) ----
+  if (MUZIEK_URL) {
+    const knopM = document.getElementById('muziek'), bron = document.getElementById('muziekbron');
+    bron.src = MUZIEK_URL; bron.volume = 0.5; knopM.hidden = false;
+    knopM.addEventListener('click', () => {
+      if (bron.paused) { bron.play(); knopM.setAttribute('aria-pressed', 'true'); knopM.innerHTML = '&#9834; Muziek uit'; }
+      else { bron.pause(); knopM.setAttribute('aria-pressed', 'false'); knopM.innerHTML = '&#9834; Muziek'; }
+    });
+  }
+</script>
 </body>
 </html>
