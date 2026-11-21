@@ -88,7 +88,8 @@
   }
   textarea:focus, input:focus { border-color: var(--leer); }
   textarea:focus { background-image: repeating-linear-gradient(transparent 0 31px, rgba(110,15,18,.45) 31px 32px); }
-  .teller { text-align: right; font-size: .8rem; color: var(--inkt-zacht); margin-top: 2px; }
+  .teller { text-align: right; font-size: .85rem; color: var(--inkt-zacht); margin-top: 2px; }
+  .hint { font-style: italic; color: var(--inkt-zacht); font-size: .9rem; margin: -2px 0 6px; }
   .keuzes { display: flex; flex-wrap: wrap; gap: 8px 20px; }
   .keuzes label { font-family: "EB Garamond", serif; letter-spacing: 0; font-size: 1.05rem; color: var(--inkt); display: flex; align-items: center; gap: 8px; margin: 0; cursor: pointer; }
   input[type=radio], input[type=checkbox] { accent-color: var(--leer); width: 18px; height: 18px; margin: 0; }
@@ -189,23 +190,15 @@
     </header>
 
     <div id="formulierdeel">
-      <p class="intro">Dit jaar leid ik zelf het dobbelspel. Gooi je het goede getal, dan trek je een lootje en lees ik voor wat er in mijn Grote Boek staat. Welke opdracht mag er dit jaar niet ontbreken? Schrijf hem op, en wie weet lees ik hem op pakjesavond voor aan jouw tafel.</p>
+      <p class="intro">Dag lieve kinderen. Welke opdracht mag er dit jaar niet ontbreken? Schrijf hem op, en wie weet lees ik hem op pakjesavond persoonlijk aan je voor.</p>
       <p class="regels">Houd het leuk voor iedereen aan tafel, groot en klein. Elke opdracht wordt eerst gelezen voordat hij in het spel komt.</p>
 
       <form id="formulier" novalidate>
         <div>
-          <label for="opdracht">Jouw opdracht</label>
-          <textarea id="opdracht" name="opdracht" maxlength="280" required placeholder="Zing een liedje als een operazanger, met een cadeau op je hoofd."></textarea>
-          <div class="teller"><span id="teller">0</span> / 280</div>
-        </div>
-
-        <div>
-          <label id="voorwie-label">Voor wie is deze opdracht?</label>
-          <div class="keuzes" role="radiogroup" aria-labelledby="voorwie-label">
-            <label><input type="radio" name="voorwie" value="iedereen" checked> Iedereen</label>
-            <label><input type="radio" name="voorwie" value="kinderen"> Kinderen</label>
-            <label><input type="radio" name="voorwie" value="volwassenen"> Volwassenen</label>
-          </div>
+          <label for="opdracht">Jouw opdrachten</label>
+          <div class="hint">Na elke Enter begin je aan een nieuwe opdracht.</div>
+          <textarea id="opdracht" name="opdracht" required spellcheck="true">1. </textarea>
+          <div class="teller" id="teller">Nog geen opdracht</div>
         </div>
 
         <div class="twee">
@@ -233,18 +226,13 @@
 
     <div class="bedankt" id="bedankt" aria-live="polite">
       <h2>Het staat in mijn boek</h2>
-      <p>Dank je wel<span id="bedankt-naam"></span>. Ik lees je opdracht met aandacht, en misschien hoor je hem op pakjesavond terug.</p>
+      <p>Dank je wel<span id="bedankt-naam"></span>. <span id="bedankt-tekst"></span></p>
       <button class="nog" id="nog" type="button">Nog een opdracht schrijven</button>
     </div>
   </article>
 </main>
 
-<footer class="voet">
-  <span class="merk">sinterklaasspel.app</span>
-  Binnenkort: het dobbelspel waarin de Sint zelf de avond leidt.<br>
-  Je opdracht, voornaam en e-mail worden alleen gebruikt voor dit spel en nooit gedeeld.
-  Vragen of iets laten verwijderen: <a href="mailto:avontura.apps@gmail.com">avontura.apps@gmail.com</a>
-</footer>
+
 
 <audio id="muziekbron" loop preload="none"></audio>
 
@@ -277,19 +265,60 @@
   const knop = document.getElementById('verstuur');
   const geopend = Date.now();
 
-  opdracht.addEventListener('input', () => document.getElementById('teller').textContent = opdracht.value.length);
+  // ---- genummerde opdrachten: elke regel is een opdracht, nummer komt er vanzelf voor ----
+  const PREFIX = /^\s*\d+\.\s?/;
+  const kale = r => r.replace(PREFIX, '');
+  function lijst() { return opdracht.value.split('\n').map(r => kale(r).trim()).filter(Boolean); }
+  function hernummer() {
+    const pos = opdracht.selectionStart;
+    const regelsVoor = opdracht.value.slice(0, pos).split('\n');
+    const regelIdx = regelsVoor.length - 1;
+    const huidigVoor = regelsVoor[regelIdx];
+    const m = huidigVoor.match(PREFIX);
+    const kolom = m ? huidigVoor.length - m[0].length : Math.max(0, huidigVoor.length);
+    const regels = opdracht.value.split('\n').map((r, i) => `${i + 1}. ` + kale(r).slice(0, 280));
+    const nieuw = regels.join('\n');
+    if (nieuw !== opdracht.value) {
+      opdracht.value = nieuw;
+      let p = 0; for (let i = 0; i < regelIdx; i++) p += regels[i].length + 1;
+      p += `${regelIdx + 1}. `.length + Math.min(kolom, kale(regels[regelIdx]).length);
+      opdracht.setSelectionRange(p, p);
+    }
+    opdracht.style.height = 'auto'; opdracht.style.height = Math.max(132, opdracht.scrollHeight + 4) + 'px';
+    const n = lijst().length;
+    document.getElementById('teller').textContent = n === 0 ? 'Nog geen opdracht' : n === 1 ? '1 opdracht' : `${n} opdrachten`;
+  }
+  opdracht.addEventListener('input', hernummer);
+  opdracht.addEventListener('keydown', e => {
+    if (e.key !== 'Backspace' || opdracht.selectionStart !== opdracht.selectionEnd) return;
+    const pos = opdracht.selectionStart, voor = opdracht.value.slice(0, pos);
+    const regels = voor.split('\n'), huidig = regels[regels.length - 1];
+    const m = huidig.match(PREFIX);
+    // cursor staat direct na het nummer: plak deze regel aan de vorige vast
+    if (m && huidig.length === m[0].length) {
+      e.preventDefault();
+      if (regels.length === 1) return;
+      const start = pos - huidig.length - 1;
+      opdracht.value = opdracht.value.slice(0, start) + opdracht.value.slice(pos);
+      opdracht.setSelectionRange(start, start);
+      hernummer();
+    }
+  });
+  // klik in het nummer: cursor naar achter het nummer
+  opdracht.addEventListener('focus', () => setTimeout(() => {
+    if (opdracht.value === '1. ' ) opdracht.setSelectionRange(3, 3);
+  }));
   email.addEventListener('input', () => { vinkRij.hidden = !email.value.trim(); });
 
   f.addEventListener('submit', async e => {
     e.preventDefault();
     fout.textContent = '';
-    const tekst = opdracht.value.trim();
-    if (tekst.length < 8) { fout.textContent = 'Schrijf je opdracht iets uitgebreider op.'; opdracht.focus(); return; }
+    const opdrachten = lijst();
+    if (!opdrachten.length || opdrachten.some(o => o.length < 6)) { fout.textContent = opdrachten.length ? 'Schrijf elke opdracht iets uitgebreider op.' : 'Schrijf eerst een opdracht op.'; opdracht.focus(); return; }
     const mail = email.value.trim();
     if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { fout.textContent = 'Dat e-mailadres klopt nog niet helemaal.'; email.focus(); return; }
     const data = {
-      opdracht: tekst,
-      voorwie: f.voorwie.value,
+      opdrachten,
       naam: f.naam.value.trim(),
       email: mail,
       bericht: mail ? document.getElementById('bericht').checked : false,
@@ -307,6 +336,7 @@
         await new Promise(r => setTimeout(r, 500));
       }
       document.getElementById('bedankt-naam').textContent = data.naam ? ', ' + data.naam : '';
+      document.getElementById('bedankt-tekst').textContent = opdrachten.length > 1 ? `Ik lees je ${opdrachten.length} opdrachten met aandacht, en misschien hoor je er een op pakjesavond terug.` : 'Ik lees je opdracht met aandacht, en misschien hoor je hem op pakjesavond terug.';
       document.getElementById('formulierdeel').hidden = true;
       document.getElementById('bedankt').classList.add('zichtbaar');
       document.querySelector('.blad').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -317,7 +347,7 @@
     }
   });
   document.getElementById('nog').addEventListener('click', () => {
-    f.reset(); vinkRij.hidden = true; document.getElementById('teller').textContent = '0';
+    f.reset(); opdracht.value = '1. '; vinkRij.hidden = true; document.getElementById('teller').textContent = 'Nog geen opdracht';
     document.getElementById('bedankt').classList.remove('zichtbaar');
     document.getElementById('formulierdeel').hidden = false;
     opdracht.focus();
