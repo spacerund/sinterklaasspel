@@ -65,12 +65,11 @@
     font-size: clamp(1.9rem, 7vw, 2.7rem); line-height: 1.1; margin: .25em 0 .35em;
   }
   .sier { display: block; width: 160px; height: 14px; margin: 0 auto 18px; color: var(--goud); }
-  .intro { margin: 0 0 1.2em; }
+  .intro { margin: 0 0 1.6em; }
   .intro::first-letter {
     font-family: "IM Fell English", serif; float: left; font-size: 3.6em; line-height: .82;
     padding: 6px 8px 0 0; color: var(--leer);
   }
-  .regels { font-style: italic; color: var(--inkt-zacht); font-size: .95rem; margin: 0 0 1.6em; }
 
   /* ---------- formulier als inkt op papier ---------- */
   form { display: grid; gap: 22px; }
@@ -191,8 +190,6 @@
 
     <div id="formulierdeel">
       <p class="intro">Dag lieve kinderen. Welke opdracht mag er dit jaar niet ontbreken? Schrijf hem op, en wie weet lees ik hem op pakjesavond persoonlijk aan je voor.</p>
-      <p class="regels">Houd het leuk voor iedereen aan tafel, groot en klein. Elke opdracht wordt eerst gelezen voordat hij in het spel komt.</p>
-
       <form id="formulier" novalidate>
         <div>
           <label for="opdracht">Jouw opdrachten</label>
@@ -239,7 +236,7 @@
 <script>
   // ---- instellingen ----
   const INZEND_URL = '';           // Google Apps Script web-app URL (volgt)
-  const MUZIEK_URL = '';           // bijv. 'audio/grote-boek.mp3' zodra Daniels Suno-nummer er is
+  const MUZIEK_URL = 'audio/grote-boek.mp3'; // Daniels Suno-nummer 'Jazz Combo Improvisation'
 
   // ---- boek openslaan ----
   const boek = document.getElementById('boek');
@@ -353,14 +350,31 @@
     opdracht.focus();
   });
 
-  // ---- muziek (Daniels Suno-nummer) ----
+  // ---- muziek (Daniels Suno-nummer): start zo snel als de browser toestaat, knop om te dempen ----
   if (MUZIEK_URL) {
     const knopM = document.getElementById('muziek'), bron = document.getElementById('muziekbron');
-    bron.src = MUZIEK_URL; bron.volume = 0.5; knopM.hidden = false;
-    knopM.addEventListener('click', () => {
-      if (bron.paused) { bron.play(); knopM.setAttribute('aria-pressed', 'true'); knopM.innerHTML = '&#9834; Muziek uit'; }
-      else { bron.pause(); knopM.setAttribute('aria-pressed', 'false'); knopM.innerHTML = '&#9834; Muziek'; }
+    let gedempt = false;
+    try { gedempt = localStorage.getItem('gb-muziek') === 'uit'; } catch {}
+    bron.src = MUZIEK_URL; bron.preload = 'auto'; bron.volume = 0.45; knopM.hidden = false;
+    const toon = () => {
+      knopM.setAttribute('aria-pressed', String(!gedempt));
+      knopM.innerHTML = gedempt ? '&#9834; Muziek aan' : '&#9834; Muziek uit';
+    };
+    const speel = () => { if (!gedempt && bron.paused) bron.play().catch(() => {}); };
+    toon();
+    // eerst proberen meteen te spelen; anders bij de eerste tik, klik of toets
+    speel();
+    const eersteKeer = () => { speel(); ['pointerdown', 'keydown', 'touchstart'].forEach(t => removeEventListener(t, eersteKeer, true)); };
+    ['pointerdown', 'keydown', 'touchstart'].forEach(t => addEventListener(t, eersteKeer, true));
+    knopM.addEventListener('click', e => {
+      e.stopPropagation();
+      gedempt = !gedempt;
+      try { localStorage.setItem('gb-muziek', gedempt ? 'uit' : 'aan'); } catch {}
+      if (gedempt) bron.pause(); else bron.play().catch(() => {});
+      toon();
     });
+    // pauzeren als de pagina op de achtergrond staat
+    document.addEventListener('visibilitychange', () => { if (document.hidden) bron.pause(); else speel(); });
   }
 </script>
 </body>
