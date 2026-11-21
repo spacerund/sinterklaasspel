@@ -235,7 +235,7 @@
 
 <script>
   // ---- instellingen ----
-  const INZEND_URL = '';           // Google Apps Script web-app URL (volgt)
+  const INZEND_URL = 'https://script.google.com/macros/s/AKfycbyeX8GscoQQj7Q_Hz-TQJmKDB1U-xUUHuBBmATj2qqU4YtWgPq1n5l6dJXkbCCXt_2GQw/exec'; // Apps Script 'Grote Boek ontvanger' (silentdiscotheater)
   const MUZIEK_URL = 'audio/grote-boek.mp3'; // Daniels Suno-nummer 'Jazz Combo Improvisation'
 
   // ---- boek openslaan ----
@@ -248,8 +248,8 @@
   };
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) openBoek();
   else {
-    addEventListener('load', () => setTimeout(openBoek, 900));
-    setTimeout(openBoek, 3500); // vangnet als 'load' lang duurt
+    addEventListener('load', () => setTimeout(openBoek, 3000));
+    setTimeout(openBoek, 6000); // vangnet als 'load' lang duurt
   }
   omslag.addEventListener('click', openBoek);
 
